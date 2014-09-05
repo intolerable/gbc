@@ -27,4 +27,5 @@ readByte :: Address -> Memory -> Byte
 readByte addr (Memory mem) = mem ^. singular (ix addr)
 
 readWord :: Address -> Memory -> Word
-readWord = undefined
+readWord addr (Memory mem) = (get addr `shiftL` 8) + get (succ addr)
+  where get a = fromIntegral $ mem ^. singular (ix a)
