@@ -7,11 +7,23 @@ import Types
 import Control.Applicative
 import Control.Lens
 import Control.Monad.State
+import Data.Default
 
 nop :: State Z80 ()
 nop = do
   registers.m .= 1
   registers.t .= 4
+
+add :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
+add r1 r2 = do
+  r1' <- asInteger $ use (registers.r1)
+  r2' <- asInteger $ use (registers.r2)
+  let res = r1' + r2'
+  registers.f .= (def & zero .~ (res == 0)
+                      & carry .~ (res > 255))
+  registers.r1 .= fromIntegral res
+  registers.m .= 1; registers.t .= 12
+  where asInteger = fmap (fromIntegral :: Integral a => a -> Integer)
 
 push :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
 push r1 r2 = do
