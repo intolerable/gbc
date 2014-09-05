@@ -4,6 +4,7 @@ import CPU
 import qualified Memory
 import Types
 
+import Control.Applicative
 import Control.Lens
 import Control.Monad.State
 
@@ -53,13 +54,9 @@ popaf :: State Z80 ()
 popaf = pop a (f.flags)
 
 writeByte :: Lens' Z80 Address -> Lens' Z80 Byte -> State Z80 ()
-writeByte addr byte = do
-  addr' <- use addr
-  byte' <- use byte
-  memory %= Memory.writeByte addr' byte'
+writeByte addr byte =
+  memory <~ Memory.writeByte <$> use addr <*> use byte <*> use memory
 
 readByte :: Lens' Z80 Address -> State Z80 Byte
-readByte addr = do
-  addr' <- use addr
-  mem <- use memory
-  return $ Memory.readByte addr' mem
+readByte addr =
+  Memory.readByte <$> use addr <*> use memory
