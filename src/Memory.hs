@@ -17,11 +17,13 @@ emptyMemory :: Memory
 emptyMemory = Memory $ listArray (minBound, maxBound) $ repeat 0x0000
 
 writeByte :: Address -> Byte -> Memory -> Memory
-writeByte addr byte (Memory mem) = Memory $ mem & ix addr .~ byte
+writeByte addr byte (Memory mem) =
+  Memory $ mem & ix addr .~ byte
 
 writeWord :: Address -> Word -> Memory -> Memory
-writeWord addr word (Memory mem) = Memory $ mem & ix addr .~ fromIntegral word
-                                                & ix (addr + 1) .~ fromIntegral (word `shiftR` 8)
+writeWord addr word (Memory mem) =
+  Memory $ mem & ix addr .~ fromIntegral word
+               & ix (addr + 1) .~ fromIntegral (word `shiftR` 8)
 
 readByte :: Address -> Memory -> Byte
 readByte addr (Memory mem) = mem ^. singular (ix addr)
