@@ -72,3 +72,102 @@ writeByte addr byte =
 readByte :: Lens' Z80 Address -> State Z80 Byte
 readByte addr =
   Memory.readByte <$> use addr <*> use memory
+
+ops :: [State Z80 ()]
+ops =
+  -- 0x00
+  [ undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0x10
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0x20
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0x30
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0x40
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0x50
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0x60
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0x70
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0x80
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0x90
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xA0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xB0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xC0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xD0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xE0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xF0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  ]
