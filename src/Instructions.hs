@@ -22,7 +22,7 @@ add r1 r2 = do
   registers.f .= (def & zero .~ (res == 0)
                       & carry .~ (res > 255))
   registers.r1 .= fromIntegral res
-  registers.m .= 1; registers.t .= 12
+  registers.m .= 1; registers.t .= 4
   where asInteger = fmap (fromIntegral :: Integral a => a -> Integer)
 
 push :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
