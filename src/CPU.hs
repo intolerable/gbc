@@ -2,6 +2,7 @@ module CPU where
 
 import Memory
 import Types
+import Utilities
 
 import Data.Bits
 import Control.Lens
@@ -40,6 +41,30 @@ instance Default Registers where
   def = Registers def def def def
                   def def def def
                   def def def def
+
+af :: Lens' Registers Address
+af = lens
+  (\ r -> (_registersA r, (_registersF r) ^. flags) ^. from wordPair)
+  (\ r w ->
+    let (a, f) = w ^. wordPair in r { _registersA = a, _registersF = f ^. from flags})
+
+bc :: Lens' Registers Address
+bc = lens
+  (\ r -> (_registersB r, _registersC r) ^. from wordPair)
+  (\ r w ->
+    let (b, c) = w ^. wordPair in r { _registersB = b, _registersC = c})
+
+de :: Lens' Registers Address
+de = lens
+  (\ r -> (_registersD r, _registersE r) ^. from wordPair)
+  (\ r w ->
+    let (d, e) = w ^. wordPair in r { _registersD = d, _registersE = e})
+
+hl :: Lens' Registers Address
+hl = lens
+  (\ r -> (_registersH r, _registersL r) ^. from wordPair)
+  (\ r w ->
+    let (h, l) = w ^. wordPair in r { _registersH = h, _registersL = l})
 
 data Flags = Flags { _flagsZero :: Bool
                    , _flagsSubtraction :: Bool
