@@ -6,6 +6,7 @@ import Data.Bits
 import Data.Default
 
 import Types
+import Utilities
 
 newtype Memory = Memory { unMemory :: Array Address Byte }
   deriving (Show, Read, Eq)
@@ -22,6 +23,7 @@ writeByte addr byte (Memory mem) =
 
 writeWord :: Address -> Word -> Memory -> Memory
 writeWord addr word (Memory mem) =
+  let (lower, upper) = word ^. wordPair in
   Memory $ mem & ix addr .~ fromIntegral word
                & ix (addr + 1) .~ fromIntegral (word `shiftR` 8)
 
