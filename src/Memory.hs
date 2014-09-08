@@ -24,8 +24,8 @@ writeByte addr byte (Memory mem) =
 writeWord :: Address -> Word -> Memory -> Memory
 writeWord addr word (Memory mem) =
   let (lower, upper) = word ^. wordPair in
-  Memory $ mem & ix addr .~ fromIntegral word
-               & ix (addr + 1) .~ fromIntegral (word `shiftR` 8)
+  Memory $ mem & ix addr .~ lower
+               & ix (addr + 1) .~ upper
 
 readByte :: Address -> Memory -> Byte
 readByte addr (Memory mem) = mem ^. singular (ix addr)
