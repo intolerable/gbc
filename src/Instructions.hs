@@ -73,6 +73,14 @@ readByte :: Lens' Z80 Address -> State Z80 Byte
 readByte addr =
   Memory.readByte <$> use addr <*> use memory
 
+writeWord :: Lens' Z80 Address -> Lens' Z80 Address -> State Z80 ()
+writeWord addr word =
+  memory <~ Memory.writeWord <$> use addr <*> use word <*> use memory
+
+readWord :: Lens' Z80 Address  -> State Z80 Address
+readWord addr =
+  Memory.readWord <$> use addr <*> use memory
+
 ops :: [State Z80 ()]
 ops =
   -- 0x00
