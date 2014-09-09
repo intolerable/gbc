@@ -25,6 +25,18 @@ add r1 r2 = do
   registers.m .= 1; registers.t .= 4
   where asInteger = fmap (fromIntegral :: Integral a => a -> Integer)
 
+ldr :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
+ldr r1 r2 = do
+  registers.r1 <~ use (registers.r2)
+  registers.m .= 1; registers.t .= 4
+
+swap :: Lens' Registers Byte -> State Z80 ()
+swap r = do
+  res <- use (registers.r)
+  registers.r <~ readByte (registers.hl)
+  memory <~ Memory.writeByte <$> use (registers.hl) <*> pure res <*> use memory
+  registers.m .= 4; registers.t .= 16
+
 push :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
 push r1 r2 = do
   registers.sp -= 1
