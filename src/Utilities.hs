@@ -16,7 +16,7 @@ import Data.Word
 
 byteToWord :: (Word8, Word8) -> Word16
 byteToWord (x, y) =
-  (fromIntegral x `shiftL` 8) + (fromIntegral y)
+  (fromIntegral x `shiftL` 8) + fromIntegral y
 
 wordToByte :: Word16 -> (Word8, Word8)
 wordToByte x =

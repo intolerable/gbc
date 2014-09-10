@@ -44,7 +44,7 @@ instance Default Registers where
 
 af :: Lens' Registers Address
 af = lens
-  (\ r -> (_registersA r, (_registersF r) ^. flags) ^. from wordPair)
+  (\ r -> (_registersA r, _registersF r ^. flags) ^. from wordPair)
   (\ r w ->
     let (a, f) = w ^. wordPair in r { _registersA = a, _registersF = f ^. from flags})
 
