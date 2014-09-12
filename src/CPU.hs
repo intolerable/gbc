@@ -5,6 +5,7 @@ import Types
 import Utilities
 
 import Data.Bits
+import Data.Bits.Lens
 import Control.Lens
 import Data.Default
 
@@ -84,10 +85,10 @@ fromFlags f = zeroBits & 7 `setIf` _flagsZero f
         setIf n i b = if i then b `setBit` n else b
 
 toFlags :: Byte -> Flags
-toFlags byte = Flags (byte `testBit` 7)
-                     (byte `testBit` 6)
-                     (byte `testBit` 5)
-                     (byte `testBit` 4)
+toFlags byte = Flags (byte ^. bitAt 7)
+                     (byte ^. bitAt 6)
+                     (byte ^. bitAt 5)
+                     (byte ^. bitAt 4)
 
 flags :: Iso' Flags Byte
 flags = iso fromFlags toFlags
