@@ -45,18 +45,6 @@ push r1 r2 = do
   writeByte (registers.sp) (registers.r2)
   registers.m .= 3; registers.t .= 12
 
-pushbc :: State Z80 ()
-pushbc = push b c
-
-pushde :: State Z80 ()
-pushde = push d e
-
-pushhl :: State Z80 ()
-pushhl = push h l
-
-pushaf :: State Z80 ()
-pushaf = push a (f.flags)
-
 pop :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
 pop l1 l2 = do
   registers.l1 <~ readByte (registers.sp)
@@ -64,18 +52,6 @@ pop l1 l2 = do
   registers.l2 <~ readByte (registers.sp)
   registers.sp += 1
   registers.m .= 3; registers.t .= 12
-
-popbc :: State Z80 ()
-popbc = pop b c
-
-popde :: State Z80 ()
-popde = pop d e
-
-pophl :: State Z80 ()
-pophl = pop h l
-
-popaf :: State Z80 ()
-popaf = pop a (f.flags)
 
 writeByte :: Lens' Z80 Address -> Lens' Z80 Byte -> State Z80 ()
 writeByte addr byte =
@@ -96,7 +72,7 @@ readWord addr =
 ops :: [State Z80 ()]
 ops =
   -- 0x00
-  [ undefined, undefined, undefined, undefined
+  [ nop, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
@@ -169,25 +145,25 @@ ops =
 
   -- 0xC0
   , undefined, undefined, undefined, undefined
-  , undefined, undefined, undefined, undefined
+  , undefined, push b c, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0xD0
   , undefined, undefined, undefined, undefined
-  , undefined, undefined, undefined, undefined
+  , undefined, push d e, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0xE0
   , undefined, undefined, undefined, undefined
-  , undefined, undefined, undefined, undefined
+  , undefined, push h l, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0xF0
   , undefined, undefined, undefined, undefined
-  , undefined, undefined, undefined, undefined
+  , undefined, push a (f.flags), undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   ]
