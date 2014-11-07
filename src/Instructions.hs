@@ -30,6 +30,11 @@ ldr r1 r2 = do
   registers.r1 <~ use (registers.r2)
   registers.m .= 1; registers.t .= 4
 
+ldrhlm :: Lens' Registers Byte -> State Z80 ()
+ldrhlm r = do
+  registers.r <~ Memory.readByte <$> use (registers.hl) <*> use memory
+  registers.m .= 2; registers.t .= 8
+
 swap :: Lens' Registers Byte -> State Z80 ()
 swap r = do
   res <- use (registers.r)
@@ -96,10 +101,10 @@ ops =
   , undefined, undefined, undefined, undefined
 
   -- 0x40
-  , undefined, undefined, undefined, undefined
-  , undefined, undefined, undefined, undefined
-  , undefined, undefined, undefined, undefined
-  , undefined, undefined, undefined, undefined
+  , ldr b b, ldr b c, ldr b d, ldr b e
+  , ldr b h, ldr b l, ldrhlm b, ldr a a
+  , ldr c b, ldr c c, ldr c d, ldr c e
+  , ldr c h, ldr c l, ldrhlm c, ldr c a
 
   -- 0x50
   , undefined, undefined, undefined, undefined
