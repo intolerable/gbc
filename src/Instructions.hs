@@ -24,6 +24,17 @@ add r1 r2 = do
   registers.r1 .= fromIntegral res
   registers.m .= 1; registers.t .= 4
 
+inc :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
+inc r1 r2 = registers ~$$~ do
+  res <- r2 <+= 1
+  when (res == 0) $ r1 += 1
+  m .= 1; t .= 4
+
+incsp :: State Z80 ()
+incsp = registers ~$$~ do
+  sp += 1
+  m .= 1; t .= 4
+
 ldr :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
 ldr r1 r2 = registers ~$$~ do
   r1 <~ use r2
@@ -41,6 +52,12 @@ ldnn r1 r2 = do
   registers.r1 <~ readByte (registers.pc)
   registers.pc += 1
   registers.m .= 3; registers.t .= 12
+
+ldma :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
+ldma r1 r2 = do
+  res1 <- use $ registers.r1
+  res2 <- use $ registers.r2
+  memory <~ Memory.writeByte <$> pure ((res1, res2) ^. from wordPair) <*> use (registers.a) <*> use memory
 
 ldnnsp :: State Z80 ()
 ldnnsp = do
@@ -90,25 +107,25 @@ readWord addr =
 ops :: [State Z80 ()]
 ops =
   -- 0x00
-  [ nop, ldnn b c, undefined, undefined
+  [ nop, ldnn b c, ldma b c, inc b c
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0x10
-  , undefined, ldnn d e, undefined, undefined
+  , undefined, ldnn d e, ldma d e, inc d e
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0x20
-  , undefined, ldnn h l, undefined, undefined
+  , undefined, ldnn h l, undefined, inc h l
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0x30
-  , undefined, ldnnsp, undefined, undefined
+  , undefined, ldnnsp, undefined, incsp
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
