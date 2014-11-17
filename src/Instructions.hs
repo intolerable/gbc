@@ -1,8 +1,9 @@
-module Instructions where
+module Instructions (ops, cbops) where
 
 import CPU
 import qualified Memory
 import Types
+import Utilities
 
 import Control.Applicative
 import Control.Lens
@@ -10,30 +11,42 @@ import Control.Monad.State
 import Data.Default
 
 nop :: State Z80 ()
-nop = do
-  registers.m .= 1
-  registers.t .= 4
+nop = registers ~$$~ do
+  m .= 1; t .= 4
 
 add :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
 add r1 r2 = do
-  r1' <- asInteger $ use (registers.r1)
-  r2' <- asInteger $ use (registers.r2)
-  let res = r1' + r2'
+  r1' <- fromIntegral <$> use (registers.r1)
+  r2' <- fromIntegral <$> use (registers.r2)
+  let res = r1' + r2' :: Integer
   registers.f .= (def & zero .~ (res == 0)
                       & carry .~ (res > 255))
   registers.r1 .= fromIntegral res
   registers.m .= 1; registers.t .= 4
-  where asInteger = fmap (fromIntegral :: Integral a => a -> Integer)
 
 ldr :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
-ldr r1 r2 = do
-  registers.r1 <~ use (registers.r2)
-  registers.m .= 1; registers.t .= 4
+ldr r1 r2 = registers ~$$~ do
+  r1 <~ use r2
+  m .= 1; t .= 4
 
 ldrhlm :: Lens' Registers Byte -> State Z80 ()
 ldrhlm r = do
-  registers.r <~ Memory.readByte <$> use (registers.hl) <*> use memory
+  registers.r <~ readByte (registers.hl)
   registers.m .= 2; registers.t .= 8
+
+ldnn :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
+ldnn r1 r2 = do
+  registers.r2 <~ readByte (registers.pc)
+  registers.pc += 1
+  registers.r1 <~ readByte (registers.pc)
+  registers.pc += 1
+  registers.m .= 3; registers.t .= 12
+
+ldnnsp :: State Z80 ()
+ldnnsp = do
+  registers.sp <~ readWord (registers.pc)
+  registers.pc += 2
+  registers.m .= 3; registers.t .= 12
 
 swap :: Lens' Registers Byte -> State Z80 ()
 swap r = do
@@ -77,25 +90,25 @@ readWord addr =
 ops :: [State Z80 ()]
 ops =
   -- 0x00
-  [ nop, undefined, undefined, undefined
+  [ nop, ldnn b c, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0x10
-  , undefined, undefined, undefined, undefined
+  , undefined, ldnn d e, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0x20
-  , undefined, undefined, undefined, undefined
+  , undefined, ldnn h l, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0x30
-  , undefined, undefined, undefined, undefined
+  , undefined, ldnnsp, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
@@ -125,8 +138,8 @@ ops =
   , undefined, undefined, undefined, undefined
 
   -- 0x80
-  , undefined, undefined, undefined, undefined
-  , undefined, undefined, undefined, undefined
+  , add a b, add a c, add a d, add a e
+  , add a h, add a l, undefined, add a a
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
@@ -149,26 +162,124 @@ ops =
   , undefined, undefined, undefined, undefined
 
   -- 0xC0
-  , undefined, undefined, undefined, undefined
+  , undefined, pop b c, undefined, undefined
   , undefined, push b c, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0xD0
-  , undefined, undefined, undefined, undefined
+  , undefined, pop d e, undefined, undefined
   , undefined, push d e, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0xE0
-  , undefined, undefined, undefined, undefined
+  , undefined, pop h l, undefined, undefined
   , undefined, push h l, undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
 
   -- 0xF0
-  , undefined, undefined, undefined, undefined
+  , undefined, pop a (f.flags), undefined, undefined
   , undefined, push a (f.flags), undefined, undefined
   , undefined, undefined, undefined, undefined
   , undefined, undefined, undefined, undefined
   ]
+
+cbops :: [State Z80 ()]
+cbops =
+  -- 0xCB00
+  [ undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCB10
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCB20
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCB30
+  , swap b, swap c, swap d, swap e
+  , swap h, swap l, undefined, swap a
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCB40
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCB50
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCB60
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCB70
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCB80
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCB90
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCBA0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCBB0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCBC0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCBD0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCBE0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+
+  -- 0xCBF0
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined
+  , undefined, undefined, undefined, undefined ]
