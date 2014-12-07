@@ -5,8 +5,6 @@ import Control.Monad.IO.Class
 import Control.Applicative
 import Control.Monad.Trans.Reader
 import Control.Monad.State
-import Control.Monad.State.Class
-import Control.Monad.Trans.Class
 import Data.Word
 
 type Byte = Word8
