@@ -11,7 +11,7 @@ import Control.Monad.State
 import Data.Default
 
 nop :: State Z80 ()
-nop = registers ~$$~ do
+nop = registers `zoom` do
   m .= 1; t .= 4
 
 add :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
@@ -25,18 +25,18 @@ add r1 r2 = do
   registers.m .= 1; registers.t .= 4
 
 inc :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
-inc r1 r2 = registers ~$$~ do
+inc r1 r2 = registers `zoom` do
   res <- r2 <+= 1
   when (res == 0) $ r1 += 1
   m .= 1; t .= 4
 
 incsp :: State Z80 ()
-incsp = registers ~$$~ do
+incsp = registers `zoom` do
   sp += 1
   m .= 1; t .= 4
 
 ldr :: Lens' Registers Byte -> Lens' Registers Byte -> State Z80 ()
-ldr r1 r2 = registers ~$$~ do
+ldr r1 r2 = registers `zoom` do
   r1 <~ use r2
   m .= 1; t .= 4
 
